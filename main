@@ -1,0 +1,58 @@
+import pandas as pd
+names=pd.read_csv('name_gender.csv')
+
+import csv
+names={}
+with open('name_gender.csv', newline='') as csvfile:
+    reader = csv.DictReader(csvfile)
+    for row in reader:
+        names[row['name'].lower()]=[row['gender'],row['probability']]
+print("%i names with genders loaded."%len(names))
+
+
+def get_gender(input):
+  name=input.split(", ")
+  genderlist=[]
+  for x in name:
+    x = x.split()[0].lower()
+    if x in names.keys():
+      genderlist.append(names[x][0])
+  
+  return genderlist
+
+get_gender("Peter, Emma")
+
+
+import pandas as pd
+import math
+
+my = pd.read_csv('yc2019.csv')
+
+column = my['Founders']
+genders = []
+
+for founders in column:
+    if isinstance(founders, str):
+      genders.append(get_gender(founders))
+    #print("%s has no founders.")
+
+#genders.append(column)
+#my.append(genders)
+df3 = pd.DataFrame({'genders': genders})
+df3.columns = ['Genders']
+
+data = pd.DataFrame(my[['Organization Name', 'Founders', 'Number of Founders']]) 
+data.columns = ['Company', 'Founders', 'Number of Founders']
+
+df = pd.concat([data, df3], axis=1)
+
+df['N_Female'] = df.apply(lambda x: str(x['Genders']).count('F') ,axis=1)
+df['F_ratio'] = df.apply(lambda x: x['N_Female']/x['Number of Founders'] ,axis=1)
+df['N_Male'] = df.apply(lambda x: str(x['Genders']).count('M') ,axis=1)
+df['M_ratio'] = df.apply(lambda x: x['N_Male']/x['Number of Founders'] ,axis=1)
+df
+
+
+from google.colab import files
+df.to_csv('19final.csv')
+files.download('19final.csv')
